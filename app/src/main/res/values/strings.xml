@@ -7,4 +7,5 @@
     <string name="target_number_search_bluetooth">正在搜索蓝牙终端&#8230;</string>
     <string name="activity_main_title">蓝牙通讯转移</string>
     <string name="string_empty"/>
+    <string name="activity_client_send">发送</string>
 </resources>

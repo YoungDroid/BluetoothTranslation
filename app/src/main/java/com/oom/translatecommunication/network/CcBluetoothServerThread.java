@@ -37,19 +37,15 @@ public class CcBluetoothServerThread extends Thread {
              * 参数分别：服务器名称、UUID   */
             mServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord( PROTOCOL_SCHEME_RFCOMM, UUID.fromString( "00001101-0000-1000-8000-00805F9B34FB" ) );
 
-            Log.e( "server", "wait client connect..." );
-
             Message msgLinking = new Message();
             msgLinking.obj = "请稍候，正在等待客户端的连接...";
             msgLinking.what = 0;
             linkDetectedHandler.sendMessage( msgLinking );
             /* 接受客户端的连接请求 */
             socket = mServerSocket.accept();
-            Log.d( "server", "accept success !" );
 
             Message msgLinked = new Message();
-            String info = "客户端已经连接上！可以发送信息。";
-            msgLinked.obj = info;
+            msgLinked.obj = "客户端已经连接上！可以发送信息。";
             msgLinked.what = 0;
             linkDetectedHandler.sendMessage( msgLinked );
             //启动接受数据
@@ -62,6 +58,8 @@ public class CcBluetoothServerThread extends Thread {
     }
 
     public void close() {
-        controller.shutdownServer();
+        if ( controller != null ) {
+            controller.shutdownServer();
+        }
     }
 }

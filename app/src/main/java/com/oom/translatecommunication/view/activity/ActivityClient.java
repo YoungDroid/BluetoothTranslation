@@ -7,7 +7,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -16,7 +18,6 @@ import com.oom.translatecommunication.app.CcBaseActivity;
 import com.oom.translatecommunication.model.BluetoothMsg;
 import com.oom.translatecommunication.model.BluetoothMsg.ServerOrClient;
 import com.oom.translatecommunication.network.CcBluetoothClientThread;
-import com.oom.translatecommunication.network.CcBluetoothController;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
@@ -29,6 +30,8 @@ public class ActivityClient extends CcBaseActivity {
 
     @ViewById(R.id.lv_activity_client_content)
     ListView lvContent;
+    @ViewById(R.id.et_client_send)
+    EditText etSend;
 
     private ArrayAdapter< String > mAdapter;
     private List< String > msgList = new ArrayList< String >();
@@ -119,5 +122,11 @@ public class ActivityClient extends CcBaseActivity {
         }
         BluetoothMsg.isOpen = false;
         BluetoothMsg.serviceOrClient = ServerOrClient.NONE;
+    }
+
+    public void sendMessage( View view ) {
+        if ( !etSend.getText().toString().equals( "" ) ) {
+            clientConnectThread.sendMessage( etSend.getText().toString() );
+        }
     }
 }

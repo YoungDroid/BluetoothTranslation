@@ -20,6 +20,7 @@ public class CcBluetoothClientThread extends Thread {
     private BluetoothSocket socket = null;
     private BluetoothDevice device = null;
     private CcBluetoothReadThread readThread = null;
+    private CcBluetoothSendThread sendThread = null;
     private CcBluetoothController controller = null;
 
     public CcBluetoothClientThread( BluetoothDevice device, Handler linkDetectedHandler ) {
@@ -48,6 +49,7 @@ public class CcBluetoothClientThread extends Thread {
             //启动接受数据
             readThread = new CcBluetoothReadThread( socket, linkDetectedHandler );
             readThread.start();
+            sendThread = new CcBluetoothSendThread( socket, linkDetectedHandler );
             controller = new CcBluetoothController( this, readThread, socket );
         } catch ( IOException e ) {
             Log.e( "connect", "", e );
@@ -59,6 +61,14 @@ public class CcBluetoothClientThread extends Thread {
     }
 
     public void close() {
-        controller.shutdownClient();
+        if ( controller != null ) {
+            controller.shutdownClient();
+        }
+    }
+
+    public void sendMessage(String message) {
+        if ( sendThread != null ) {
+            sendThread.sendMessage( message );
+        }
     }
 }

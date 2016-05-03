@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -46,6 +47,7 @@ public class CcPhoneReceiver extends BroadcastReceiver {
                     if ( mIncomingFlag ) {
                         Log.i( TAG, "incoming ACCEPT :" + phoneNumber );
                     }
+//                    AudioManager audioManager = new AudioManager();
                     break;
                 case TelephonyManager.CALL_STATE_IDLE:
                     Date date = new Date( System.currentTimeMillis() );//时间
