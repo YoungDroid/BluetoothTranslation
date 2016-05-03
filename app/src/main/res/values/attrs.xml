@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CcMagicTextView">
+        <attr name="CcMagicText" format="string"/>
+        <attr name="CcMagicTextColor" format="color"/>
+        <attr name="CcMagicTextBackground" format="color"/>
+        <attr name="CcMagicTextSize" format="dimension"/>
+        <attr name="CcMagicTextMoveSpeed" format="integer"/>
+        <attr name="CcMagicTextOrientation">
+            <enum name="horizontal" value="0"/>
+            <enum name="vertical" value="1"/>
+        </attr>
+    </declare-styleable>
+
+    // ToggleButton
+    <declare-styleable name="ToggleButton">
+        <attr name="borderWidth" format="dimension"/>
+        <attr name="offBorderColor" format="reference|color"/>
+        <attr name="offColor" format="reference|color"/>
+        <attr name="onColor" format="reference|color"/>
+        <attr name="spotColor" format="reference|color"/>
+        <attr name="animate2" format="reference|boolean"/>
+    </declare-styleable>
+</resources>

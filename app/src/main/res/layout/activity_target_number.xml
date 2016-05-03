@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".view.activity.ActivityTargetNumber">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:padding="16dp"
+                android:onClick="bluetooth"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_target_number_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="16dp"
+                    android:text="@string/target_number_bluetooth_state"
+                    android:textColor="@color/md_black_1000"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+
+                <com.oom.translatecommunication.widget.togglebutton.ToggleButton
+                    android:id="@+id/tb_target_number_bluetooth_state"
+                    android:layout_width="48dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="15dp"/>
+            </RelativeLayout>
+
+            <com.oom.translatecommunication.widget.textview.CcMagicTextView
+                android:id="@+id/mtv_target_number_search_bluetooth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="16dp"
+                app:CcMagicText="@string/target_number_search_bluetooth"
+                app:CcMagicTextColor="@color/md_grey_600"
+                app:CcMagicTextMoveSpeed="10"
+                app:CcMagicTextSize="16sp"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_target_number_bluetooth_list"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:onClick="bluetooth"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="16dp"
+                    android:text="目标手机号："
+                    android:textColor="@color/md_black_1000"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
+            </RelativeLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>

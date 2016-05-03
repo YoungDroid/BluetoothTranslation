@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">TranslateCommunication</string>
+    <string name="main_black_list">黑名单</string>
+    <string name="main_target_number">目标号</string>
+    <string name="target_number_bluetooth_state">蓝牙状态{ %1$s }</string>
+    <string name="target_number_bluetooth_state_on">%1$s{ %2$s [ %3$d ] }</string>
+    <string name="target_number_search_bluetooth">正在搜索蓝牙终端&#8230;</string>
+    <string name="activity_main_title">蓝牙通讯转移</string>
+    <string name="string_empty"/>
+</resources>
