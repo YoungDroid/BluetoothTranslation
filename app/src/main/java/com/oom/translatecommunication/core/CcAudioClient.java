@@ -32,14 +32,14 @@ public class CcAudioClient extends Thread {
     public void init() {
         try {
             dataOutputStream = new DataOutputStream( socket.getOutputStream() );
-            inputBufferSize = AudioRecord.getMinBufferSize( 8000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT );
-            audioRecordIn = new AudioRecord( MediaRecorder.AudioSource.MIC, 8000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, inputBufferSize );
+            inputBufferSize = AudioRecord.getMinBufferSize( 8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT );
+            audioRecordIn = new AudioRecord( MediaRecorder.AudioSource.MIC, 8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, inputBufferSize );
             inputBytes = new byte[ inputBufferSize ];
             keepRunning = true;
             linkedListBytes = new LinkedList< byte[] >();
         } catch ( IOException e ) {
             e.printStackTrace();
-            responseMessage("IOException.");
+            responseMessage("CcAudioClient init IOException.");
         }
     }
 
@@ -56,6 +56,7 @@ public class CcAudioClient extends Thread {
             byte[] bytes_pkg;
             audioRecordIn.startRecording();
             while ( keepRunning ) {
+                responseMessage( "CcAudioClient 开始录取数据." );
                 audioRecordIn.read( inputBytes, 0, inputBufferSize );
                 bytes_pkg = inputBytes.clone();
                 if ( linkedListBytes.size() >= 2 ) {
@@ -71,7 +72,7 @@ public class CcAudioClient extends Thread {
 
         } catch ( Exception e ) {
             e.printStackTrace();
-            responseMessage("Exception.");
+            responseMessage("CcAudioClient run Exception.");
         }
     }
 
@@ -80,7 +81,7 @@ public class CcAudioClient extends Thread {
         try {
             Thread.sleep( 1000 );
         } catch ( Exception e ) {
-            responseMessage("sleep exceptions...");
+            responseMessage("CcAudioClient sleep exceptions...");
         }
     }
 }

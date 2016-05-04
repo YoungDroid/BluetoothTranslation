@@ -34,7 +34,7 @@ public class CcAudioServer extends Thread {
             outBytes = new byte[ outBufferSize ];
         } catch ( Exception e ) {
             e.printStackTrace();
-            responseMessage( "Exception." );
+            responseMessage( "CcAudioServer init Exception." );
         }
     }
 
@@ -51,11 +51,14 @@ public class CcAudioServer extends Thread {
         audioTrackOut.play();
         while ( keepRunning ) {
             try {
+                responseMessage( "CcAudioServer 开始接收数据." );
                 dataInputStream.read( outBytes );
                 bytes_pkg = outBytes.clone();
                 audioTrackOut.write( bytes_pkg, 0, bytes_pkg.length );
             } catch ( Exception e ) {
                 e.printStackTrace();
+                responseMessage( "CcAudioServer running Exception." );
+                break;
             }
         }
         audioTrackOut.stop();
@@ -64,7 +67,7 @@ public class CcAudioServer extends Thread {
             dataInputStream.close();
         } catch ( IOException e ) {
             e.printStackTrace();
-            responseMessage( "IOException." );
+            responseMessage( "CcAudioServer run IOException." );
         }
     }
 
@@ -73,7 +76,7 @@ public class CcAudioServer extends Thread {
         try {
             Thread.sleep( 1000 );
         } catch ( Exception e ) {
-            responseMessage( "sleep exceptions..." );
+            responseMessage( "CcAudioServer sleep exceptions..." );
         }
     }
 }
