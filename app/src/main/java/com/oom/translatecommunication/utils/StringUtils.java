@@ -79,7 +79,7 @@ public class StringUtils {
         if ( text ) {
             if ( millis > 0 ) time = ( negative ? "-" : "" ) + hours + "h" + format.format( min ) + "min";
             else if ( min > 0 ) time = ( negative ? "-" : "" ) + min + "min";
-            else time = ( negative ? "-" : "" ) + sec + "s";
+            else time = ( negative ? "-" : "" ) + sec + "socket";
         } else {
             if ( millis > 0 )
                 time = ( negative ? "-" : "" ) + hours + ":" + format.format( min ) + ":" + format.format( sec )/* + ":" + format2.format(mini_sec)*/;

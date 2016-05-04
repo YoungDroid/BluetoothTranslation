@@ -13,7 +13,7 @@ package com.oom.translatecommunication.widget.togglebutton.facebook.rebound;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
- * Classical spring implementing Hooke's law with configurable friction and tension.
+ * Classical spring implementing Hooke'socket law with configurable friction and tension.
  */
 public class Spring {
 
@@ -367,7 +367,7 @@ public class Spring {
     }
 
     // End the spring immediately if it is overshooting and overshoot clamping is enabled.
-    // Also make sure that if the spring was considered within a resting threshold that it's now
+    // Also make sure that if the spring was considered within a resting threshold that it'socket now
     // snapped to its end value.
     if (isAtRest() || (mOvershootClampingEnabled && isOvershooting())) {
       // Don't call setCurrentValue because that forces a call to onSpringUpdate
@@ -506,7 +506,7 @@ public class Spring {
 
   /**
    * This method checks to see that the current spring displacement value is equal to the input,
-   * accounting for the spring's rest displacement threshold.
+   * accounting for the spring'socket rest displacement threshold.
    * @param value The value to compare the spring value to
    * @return Whether the displacement value from the spring is within the bounds of the compare
    * value, accounting for threshold

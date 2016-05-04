@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.oom.translatecommunication.core.CcAudioServer;
+
 import java.io.IOException;
 import java.util.UUID;
 
@@ -23,6 +25,7 @@ public class CcBluetoothServerThread extends Thread {
     private CcBluetoothReadThread readThread = null;
     private BluetoothAdapter mBluetoothAdapter = null;
     private CcBluetoothController controller = null;
+    private CcAudioServer audioServer;
 
     public CcBluetoothServerThread( BluetoothAdapter mBluetoothAdapter, Handler handler ) {
         this.mBluetoothAdapter = mBluetoothAdapter;
@@ -48,10 +51,14 @@ public class CcBluetoothServerThread extends Thread {
             msgLinked.obj = "客户端已经连接上！可以发送信息。";
             msgLinked.what = 0;
             linkDetectedHandler.sendMessage( msgLinked );
-            //启动接受数据
-            readThread = new CcBluetoothReadThread( socket, linkDetectedHandler );
-            readThread.start();
-            controller = new CcBluetoothController( mServerSocket, readThread, this );
+            //启动接受短信数据
+//            readThread = new CcBluetoothReadThread( socket, linkDetectedHandler );
+//            readThread.start();
+//            controller = new CcBluetoothController( mServerSocket, readThread, this );
+            //启动接受语音数据
+            audioServer = new CcAudioServer( socket, linkDetectedHandler );
+            audioServer.init();
+            audioServer.start();
         } catch ( IOException e ) {
             e.printStackTrace();
         }

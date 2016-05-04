@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.oom.translatecommunication.core.CcAudioClient;
 import com.oom.translatecommunication.model.BluetoothMsg;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ public class CcBluetoothClientThread extends Thread {
     private CcBluetoothReadThread readThread = null;
     private CcBluetoothSendThread sendThread = null;
     private CcBluetoothController controller = null;
+    private CcAudioClient audioClient;
 
     public CcBluetoothClientThread( BluetoothDevice device, Handler linkDetectedHandler ) {
         this.device = device;
@@ -46,11 +48,15 @@ public class CcBluetoothClientThread extends Thread {
             msg.obj = "已经连接上服务端！可以发送信息。";
             msg.what = 0;
             linkDetectedHandler.sendMessage( msg );
-            //启动接受数据
-            readThread = new CcBluetoothReadThread( socket, linkDetectedHandler );
-            readThread.start();
-            sendThread = new CcBluetoothSendThread( socket, linkDetectedHandler );
-            controller = new CcBluetoothController( this, readThread, socket );
+            //启动接受短信数据
+//            readThread = new CcBluetoothReadThread( socket, linkDetectedHandler );
+//            readThread.start();
+//            sendThread = new CcBluetoothSendThread( socket, linkDetectedHandler );
+//            controller = new CcBluetoothController( this, readThread, socket );
+            //启动语音获取
+            audioClient = new CcAudioClient( socket, linkDetectedHandler );
+            audioClient.init();
+            audioClient.start();
         } catch ( IOException e ) {
             Log.e( "connect", "", e );
             Message msg = new Message();

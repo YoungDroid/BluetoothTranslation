@@ -18,7 +18,7 @@ import android.view.Choreographer;
 
 /**
  * Android version of the spring looper that uses the most appropriate frame callback mechanism
- * available. It uses Android's {@link Choreographer} when available, otherwise it uses a
+ * available. It uses Android'socket {@link Choreographer} when available, otherwise it uses a
  * {@link Handler}.
  */
 abstract class AndroidSpringLooperFactory {
@@ -87,7 +87,7 @@ abstract class AndroidSpringLooperFactory {
   }
 
   /**
-   * The Jelly Bean and up implementation of the spring looper that uses Android's
+   * The Jelly Bean and up implementation of the spring looper that uses Android'socket
    * {@link Choreographer} instead of a {@link Handler}
    */
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN)

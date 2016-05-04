@@ -20,7 +20,7 @@ public interface SpringListener {
 
   /**
    * called whenever the spring achieves a resting state
-   * @param spring the spring that's now resting
+   * @param spring the spring that'socket now resting
    */
   void onSpringAtRest( Spring spring );
 
