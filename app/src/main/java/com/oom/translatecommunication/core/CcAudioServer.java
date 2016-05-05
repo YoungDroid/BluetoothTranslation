@@ -12,10 +12,10 @@ import java.io.IOException;
 
 public class CcAudioServer extends Thread {
 
-    protected AudioTrack audioTrackOut;
-    protected int outBufferSize;
-    protected byte[] outBytes;
-    protected boolean keepRunning;
+    private AudioTrack audioTrackOut;
+    private int outBufferSize;
+    private byte[] outBytes;
+    private boolean keepRunning;
     private BluetoothSocket socket;
     private DataInputStream dataInputStream;
     private Handler linkDetectedHandler = null;
@@ -29,8 +29,8 @@ public class CcAudioServer extends Thread {
         try {
             dataInputStream = new DataInputStream( socket.getInputStream() );
             keepRunning = true;
-            outBufferSize = AudioTrack.getMinBufferSize( 8000, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT );
-            audioTrackOut = new AudioTrack( AudioManager.STREAM_MUSIC, 8000, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, outBufferSize, AudioTrack.MODE_STREAM );
+            outBufferSize = AudioTrack.getMinBufferSize( 8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT );
+            audioTrackOut = new AudioTrack( AudioManager.STREAM_MUSIC, 8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, outBufferSize, AudioTrack.MODE_STREAM );
             outBytes = new byte[ outBufferSize ];
         } catch ( Exception e ) {
             e.printStackTrace();

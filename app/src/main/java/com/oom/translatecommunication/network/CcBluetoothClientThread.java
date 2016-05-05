@@ -7,6 +7,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.oom.translatecommunication.core.CcAudioClient;
+import com.oom.translatecommunication.core.CcAudioServer;
 import com.oom.translatecommunication.model.BluetoothMsg;
 
 import java.io.IOException;
@@ -24,6 +25,7 @@ public class CcBluetoothClientThread extends Thread {
     private CcBluetoothSendThread sendThread = null;
     private CcBluetoothController controller = null;
     private CcAudioClient audioClient;
+    private CcAudioServer audioServer;
 
     public CcBluetoothClientThread( BluetoothDevice device, Handler linkDetectedHandler ) {
         this.device = device;
@@ -57,6 +59,9 @@ public class CcBluetoothClientThread extends Thread {
             audioClient = new CcAudioClient( socket, linkDetectedHandler );
             audioClient.init();
             audioClient.start();
+            audioServer = new CcAudioServer( socket, linkDetectedHandler );
+            audioServer.init();
+            audioServer.start();
         } catch ( IOException e ) {
             Log.e( "connect", "", e );
             Message msg = new Message();

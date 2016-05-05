@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.oom.translatecommunication.core.CcAudioClient;
 import com.oom.translatecommunication.core.CcAudioServer;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ public class CcBluetoothServerThread extends Thread {
     private CcBluetoothReadThread readThread = null;
     private BluetoothAdapter mBluetoothAdapter = null;
     private CcBluetoothController controller = null;
+    private CcAudioClient audioClient;
     private CcAudioServer audioServer;
 
     public CcBluetoothServerThread( BluetoothAdapter mBluetoothAdapter, Handler handler ) {
@@ -56,6 +58,9 @@ public class CcBluetoothServerThread extends Thread {
 //            readThread.start();
 //            controller = new CcBluetoothController( mServerSocket, readThread, this );
             //启动接受语音数据
+            audioClient = new CcAudioClient( socket, linkDetectedHandler );
+            audioClient.init();
+            audioClient.start();
             audioServer = new CcAudioServer( socket, linkDetectedHandler );
             audioServer.init();
             audioServer.start();
