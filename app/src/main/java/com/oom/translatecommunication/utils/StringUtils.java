@@ -107,7 +107,64 @@ public class StringUtils {
     public static void copy( String content, Context context ) {
         // 得到剪贴板管理器
         ClipboardManager cmb = ( ClipboardManager ) context.getSystemService( Context.CLIPBOARD_SERVICE );
-        ClipData clipData = ClipData.newPlainText("text", content);
+        ClipData clipData = ClipData.newPlainText( "text", content );
         cmb.setPrimaryClip( clipData );
+    }
+
+    /**
+     * @param number
+     * @return 两位的字节数组
+     * @功能 短整型与字节的转换
+     */
+    public static byte[] shortToByte( short number ) {
+        int temp = number;
+        byte[] b = new byte[ 2 ];
+        for ( int i = 0; i < b.length; i++ ) {
+            b[ i ] = Integer.valueOf( temp & 0xff ).byteValue();// 将最低位保存在最低位
+            temp = temp >> 8; // 向右移8位
+        }
+        return b;
+    }
+
+    /**
+     * @param b
+     * @return 短整型
+     * @功能 字节的转换与短整型
+     */
+    public static short byteToShort( byte[] b ) {
+        short s = 0;
+        short s0 = ( short ) ( b[ 0 ] & 0xff );// 最低位
+        short s1 = ( short ) ( b[ 1 ] & 0xff );
+        s1 <<= 8;
+        s = ( short ) ( s0 | s1 );
+        return s;
+    }
+
+    public static byte[] shortsToBtyes( short[] shorts ) {
+        byte[] bytes = new byte[ shorts.length * 2 ];
+
+        for ( int i = 0; i < shorts.length; i++ ) {
+            bytes[ i ] = shortToByte( shorts[ i ] )[ 0 ];
+            bytes[ i == 0 ? i + 1 : i * 2 ] = shortToByte( shorts[ i ] )[ 1 ];
+        }
+
+        return bytes;
+    }
+
+    public static short[] bytesToShorts( byte[] bytes ) {
+        short[] shorts = new short[ bytes.length / 2 ];
+
+        for ( int i = 0; i < Math.ceil( bytes.length / 2.0 ); i++ ) {
+            byte[] temp = new byte[ 2 ];
+            temp[ 0 ] = bytes[ i ];
+            if ( ( i == 0 ? i + 1 : i * 2 ) <= bytes.length ) {
+                temp[ 1 ] = bytes[ i == 0 ? i + 1 : i * 2 ];
+            } else {
+                temp[ 1 ] = 0;
+            }
+            shorts[ i ] = byteToShort( temp );
+        }
+
+        return shorts;
     }
 }

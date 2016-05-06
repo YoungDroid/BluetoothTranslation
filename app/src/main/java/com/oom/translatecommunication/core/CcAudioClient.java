@@ -8,12 +8,11 @@ import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
+
+import com.oom.translatecommunication.utils.StringUtils;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.LinkedList;
 
 public class CcAudioClient extends Thread {
@@ -22,13 +21,14 @@ public class CcAudioClient extends Thread {
     private int inputBufferSize;
     private byte[] inputBytes;
     private short[] encodeData;
+    private short[] encodeDataPlay;
     private boolean keepRunning;
     private BluetoothSocket socket = null;
     private DataOutputStream dataOutputStream;
     private LinkedList< byte[] > linkedListBytes;
     private Handler linkDetectedHandler = null;
 
-    public CcAudioClient(BluetoothSocket socket, Handler handler) {
+    public CcAudioClient( BluetoothSocket socket, Handler handler ) {
         this.socket = socket;
         this.linkDetectedHandler = handler;
     }
@@ -42,15 +42,16 @@ public class CcAudioClient extends Thread {
             audioTrackOut = new AudioTrack( AudioManager.STREAM_MUSIC, 8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, inputBufferSize, AudioTrack.MODE_STREAM );
             inputBytes = new byte[ inputBufferSize ];
             encodeData = new short[ inputBufferSize ];
+            encodeDataPlay = new short[ inputBufferSize ];
             keepRunning = true;
             linkedListBytes = new LinkedList< byte[] >();
         } catch ( IOException e ) {
             e.printStackTrace();
-            responseMessage("CcAudioClient init IOException.");
+            responseMessage( "CcAudioClient init IOException." );
         }
     }
 
-    private void responseMessage(String message) {
+    private void responseMessage( String message ) {
         Message msg = linkDetectedHandler.obtainMessage();
         msg.what = 0;
         msg.obj = message;
@@ -62,21 +63,25 @@ public class CcAudioClient extends Thread {
         try {
             byte[] bytes_pkg;
             audioRecordIn.startRecording();
+            responseMessage( "CcAudioClient 开始录取数据." );
+//            audioTrackOut.play();
             while ( keepRunning ) {
-                responseMessage( "CcAudioClient 开始录取数据." );
 //                audioRecordIn.read( inputBytes, 0, inputBufferSize );
-                int num = audioRecordIn.read( encodeData, 0, inputBufferSize);
-                denoise( encodeData, 0, inputBufferSize);
-                int wirteNum = audioTrackOut.write( encodeData, 0, num );
-                responseMessage( "CcAudioClient num = " + num + "\t" + wirteNum + "\t" + inputBufferSize);
-                if ( wirteNum == inputBufferSize ) {
+                int number = audioRecordIn.read( encodeData, 0, inputBufferSize );
+                deNoise( encodeData, 0, inputBufferSize );
+                inputBytes = StringUtils.shortsToBtyes( encodeData );
+                encodeDataPlay = StringUtils.bytesToShorts( inputBytes );
+                int writeNumber = audioTrackOut.write( encodeDataPlay, 0, number );
+                if ( writeNumber == inputBufferSize ) {
                     audioTrackOut.play();
+                    responseMessage( "CcAudioClient 转换降噪发出数据" );
+//                    inputBytes = StringUtils.shortsToBtyes( encodeData );
+//                    bytes_pkg = inputBytes.clone();
+//                    if ( linkedListBytes.size() >= 2 ) {
+//                        dataOutputStream.write( linkedListBytes.removeFirst(), 0, linkedListBytes.removeFirst().length );
+//                    }
+//                    linkedListBytes.add( bytes_pkg );
                 }
-//                bytes_pkg = inputBytes.clone();
-//                if ( linkedListBytes.size() >= 2 ) {
-//                    dataOutputStream.write( linkedListBytes.removeFirst(), 0, linkedListBytes.removeFirst().length );
-//                }
-//                linkedListBytes.add( bytes_pkg );
             }
 
             audioRecordIn.stop();
@@ -86,7 +91,7 @@ public class CcAudioClient extends Thread {
 
         } catch ( Exception e ) {
             e.printStackTrace();
-            responseMessage("CcAudioClient run Exception.");
+            responseMessage( "CcAudioClient run Exception." );
         }
     }
 
@@ -95,11 +100,11 @@ public class CcAudioClient extends Thread {
         try {
             Thread.sleep( 1000 );
         } catch ( Exception e ) {
-            responseMessage("CcAudioClient sleep exceptions...");
+            responseMessage( "CcAudioClient sleep exceptions..." );
         }
     }
 
-    void denoise( short[] lin, int off, int len ) {
+    void deNoise( short[] lin, int off, int len ) {
         int i, j;
         for ( i = 0; i < len; i++ ) {
             j = lin[ i + off ];

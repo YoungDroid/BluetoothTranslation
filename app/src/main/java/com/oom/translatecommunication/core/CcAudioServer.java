@@ -7,6 +7,8 @@ import android.media.AudioTrack;
 import android.os.Handler;
 import android.os.Message;
 
+import com.oom.translatecommunication.utils.StringUtils;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -15,6 +17,7 @@ public class CcAudioServer extends Thread {
     private AudioTrack audioTrackOut;
     private int outBufferSize;
     private byte[] outBytes;
+    private short[] encodeData;
     private boolean keepRunning;
     private BluetoothSocket socket;
     private DataInputStream dataInputStream;
@@ -29,9 +32,10 @@ public class CcAudioServer extends Thread {
         try {
             dataInputStream = new DataInputStream( socket.getInputStream() );
             keepRunning = true;
-            outBufferSize = AudioTrack.getMinBufferSize( 8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT );
+            outBufferSize = /*AudioTrack.getMinBufferSize( 8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT )*/160;
             audioTrackOut = new AudioTrack( AudioManager.STREAM_MUSIC, 8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, outBufferSize, AudioTrack.MODE_STREAM );
             outBytes = new byte[ outBufferSize ];
+            encodeData = new short[ outBufferSize ];
         } catch ( Exception e ) {
             e.printStackTrace();
             responseMessage( "CcAudioServer init Exception." );
@@ -49,12 +53,14 @@ public class CcAudioServer extends Thread {
     public void run() {
         byte[] bytes_pkg = null;
         audioTrackOut.play();
+        responseMessage( "CcAudioServer 开始接收数据." );
         while ( keepRunning ) {
             try {
-                responseMessage( "CcAudioServer 开始接收数据." );
                 dataInputStream.read( outBytes );
-                bytes_pkg = outBytes.clone();
-                audioTrackOut.write( bytes_pkg, 0, bytes_pkg.length );
+                encodeData = StringUtils.bytesToShorts( outBytes );
+//                bytes_pkg = outBytes.clone();
+                responseMessage( "CcAudioServer 转换降噪接收数据");
+                audioTrackOut.write( encodeData, 0, encodeData.length );
             } catch ( Exception e ) {
                 e.printStackTrace();
                 responseMessage( "CcAudioServer running Exception." );
