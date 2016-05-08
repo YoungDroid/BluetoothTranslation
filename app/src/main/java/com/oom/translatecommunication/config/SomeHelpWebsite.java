@@ -71,5 +71,35 @@ public class SomeHelpWebsite {
             lin[ i + off ] = ( short ) ( j >> 2 );
         }
     }*/
+
+    /*
+
+
+				"int i, j, min, x = 0, y;",1
+				"for (i = 0; i != points; i++)  {",2
+				"    result[i] = INF;",3
+				"}",4
+				"result[0] = 0;",5
+				"parents[0] = 0;",6
+				"for (j = 0; j != points; j++){",7
+				"    min = INF;",8
+				"    for (i = 0; i != points; i++) {",9
+				"        if (done[i] == false && result[i] < min) {",10
+				"            min = result[i];",1
+				"            x = i;",12
+				"        }",13
+				"    }",14
+				"    done[x] = true;",15
+				"    for (y = 0; y != points; y++) {",16
+				"        if (source[x][y] != 0 ) {",17
+				"    	     if (result[y] > result[x] + source[x][y]) {",18
+				"                result[y] = result[x] + source[x][y];",19
+				"                parents[y] = x",20
+				"            }",21
+				"        }",22
+				"    }",23
+				"}"};24
+
+     */
 }
 

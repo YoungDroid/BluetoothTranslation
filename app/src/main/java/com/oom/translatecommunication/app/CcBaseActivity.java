@@ -85,7 +85,7 @@ public abstract class CcBaseActivity extends AppCompatActivity {
         JActivityManager.getInstance().pushActivity( this );
 
         application = ApplicationTranslateCommunication.getInstance();
-        sharedPreferences = getSharedPreferences( "PentaQ", 0 );
+        sharedPreferences = getSharedPreferences( "BluetoothTranslation", 0 );
         editor = sharedPreferences.edit();
     }
 

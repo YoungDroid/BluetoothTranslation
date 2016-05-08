@@ -140,12 +140,12 @@ public class StringUtils {
         return s;
     }
 
-    public static byte[] shortsToBtyes( short[] shorts ) {
+    public static byte[] shortsToBytes( short[] shorts ) {
         byte[] bytes = new byte[ shorts.length * 2 ];
 
-        for ( int i = 0; i < shorts.length; i++ ) {
-            bytes[ i ] = shortToByte( shorts[ i ] )[ 0 ];
-            bytes[ i == 0 ? i + 1 : i * 2 ] = shortToByte( shorts[ i ] )[ 1 ];
+        for ( int i = 0, j = 0; j < shorts.length; i += 2, j++) {
+            bytes[ i ] = shortToByte( shorts[ j ] )[ 0 ];
+            bytes[ i + 1 ] = shortToByte( shorts[ j ] )[ 1 ];
         }
 
         return bytes;
@@ -154,15 +154,15 @@ public class StringUtils {
     public static short[] bytesToShorts( byte[] bytes ) {
         short[] shorts = new short[ bytes.length / 2 ];
 
-        for ( int i = 0; i < Math.ceil( bytes.length / 2.0 ); i++ ) {
+        for ( int i = 0, j = 0; i < bytes.length; i += 2, j++ ) {
             byte[] temp = new byte[ 2 ];
             temp[ 0 ] = bytes[ i ];
-            if ( ( i == 0 ? i + 1 : i * 2 ) <= bytes.length ) {
-                temp[ 1 ] = bytes[ i == 0 ? i + 1 : i * 2 ];
+            if ( ( i + 1 ) <= bytes.length ) {
+                temp[ 1 ] = bytes[ ( i + 1 ) ];
             } else {
                 temp[ 1 ] = 0;
             }
-            shorts[ i ] = byteToShort( temp );
+            shorts[ j ] = byteToShort( temp );
         }
 
         return shorts;

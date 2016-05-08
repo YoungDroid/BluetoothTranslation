@@ -33,7 +33,7 @@
             android:name=".view.activity.ActivityService_">
         </activity>
         <activity
-            android:name=".view.activity.ActivityTargetNumber_">
+            android:name=".view.activity.ActivitySearchServer_">
         </activity>
 
         <receiver android:name=".app.receiver.CcSmsReceiver">

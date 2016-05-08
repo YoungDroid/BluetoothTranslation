@@ -32,7 +32,7 @@ public class CcAudioServer extends Thread {
         try {
             dataInputStream = new DataInputStream( socket.getInputStream() );
             keepRunning = true;
-            outBufferSize = /*AudioTrack.getMinBufferSize( 8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT )*/160;
+            outBufferSize = 160 * 4;
             audioTrackOut = new AudioTrack( AudioManager.STREAM_MUSIC, 8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, outBufferSize, AudioTrack.MODE_STREAM );
             outBytes = new byte[ outBufferSize ];
             encodeData = new short[ outBufferSize ];
@@ -51,14 +51,12 @@ public class CcAudioServer extends Thread {
 
     @Override
     public void run() {
-        byte[] bytes_pkg = null;
-        audioTrackOut.play();
         responseMessage( "CcAudioServer 开始接收数据." );
+        audioTrackOut.play();
         while ( keepRunning ) {
             try {
                 dataInputStream.read( outBytes );
                 encodeData = StringUtils.bytesToShorts( outBytes );
-//                bytes_pkg = outBytes.clone();
                 responseMessage( "CcAudioServer 转换降噪接收数据");
                 audioTrackOut.write( encodeData, 0, encodeData.length );
             } catch ( Exception e ) {

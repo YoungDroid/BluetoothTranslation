@@ -7,26 +7,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jude.utils.JUtils;
 import com.oom.translatecommunication.R;
 import com.oom.translatecommunication.app.CcBaseActivity;
 import com.oom.translatecommunication.app.CcBaseRecyclerAdapter.OnItemClickListener;
 import com.oom.translatecommunication.model.BluetoothMsg;
-import com.oom.translatecommunication.model.BluetoothMsg.ServerOrClient;
-import com.oom.translatecommunication.network.CcBluetoothClientThread;
 import com.oom.translatecommunication.view.adapter.AdapterTargetNumberBluetooth;
 import com.oom.translatecommunication.widget.textview.CcMagicTextView;
 import com.oom.translatecommunication.widget.togglebutton.ToggleButton;
@@ -35,6 +29,9 @@ import com.orhanobut.logger.Logger;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -42,7 +39,7 @@ import java.util.ArrayList;
  * Created by 小白杨 on 2016/3/8.
  */
 @EActivity(R.layout.activity_target_number)
-public class ActivityTargetNumber extends CcBaseActivity {
+public class ActivitySearchServer extends CcBaseActivity {
 
     public static final int BLUETOOTH_OPEN = 101;
     public static final int BLUETOOTH_DISCOVERABLE = 102;
@@ -56,6 +53,8 @@ public class ActivityTargetNumber extends CcBaseActivity {
     CcMagicTextView mtvTargetNumberSearchBluetooth;
     @ViewById(R.id.rv_target_number_bluetooth_list)
     RecyclerView rvTargetNumberBluetoothList;
+    @ViewById(R.id.rv_target_search_list_connected)
+    RecyclerView rvSearchServerBluetoothListConnected;
 
     private ActionBar actionBar;
     private BluetoothAdapter bluetoothAdapter;
@@ -64,9 +63,17 @@ public class ActivityTargetNumber extends CcBaseActivity {
     private AdapterTargetNumberBluetooth adapterBluetooth;
     private ArrayList< String > listBluetooth;
 
+    private LinearLayoutManager layoutManagerBluetoothConnected;
+    private AdapterTargetNumberBluetooth adapterBluetoothConnected;
+    private ArrayList< String > listBluetoothConnected;
+
+    private int searchCount = 0;
+
+    private JSONArray saveConnected;
+
     @Override
     public String tag() {
-        return "ActivityTargetNumber";
+        return "ActivitySearchServer";
     }
 
     @Override
@@ -86,6 +93,12 @@ public class ActivityTargetNumber extends CcBaseActivity {
             openBluetooth();
         }
 
+        try {
+            saveConnected = new JSONArray( sharedPreferences.getString( "saveConnect", "" ) );
+        } catch ( JSONException e ) {
+            saveConnected = new JSONArray();
+        }
+
         layoutManagerBluetooth = new LinearLayoutManager( this );
         layoutManagerBluetooth.setOrientation( LinearLayoutManager.HORIZONTAL );
         rvTargetNumberBluetoothList.setLayoutManager( layoutManagerBluetooth );
@@ -98,7 +111,7 @@ public class ActivityTargetNumber extends CcBaseActivity {
             @Override
             public void onItemClick( View view, Object data, int position ) {
                 final String msg = listBluetooth.get( position );
-                AlertDialog.Builder dialog = new AlertDialog.Builder( ActivityTargetNumber.this );// 定义一个弹出框对象
+                AlertDialog.Builder dialog = new AlertDialog.Builder( ActivitySearchServer.this );// 定义一个弹出框对象
                 dialog.setTitle( "Confirmed connecting device" );
                 dialog.setMessage( msg );
                 dialog.setPositiveButton( "connect", new DialogInterface.OnClickListener() {
@@ -108,8 +121,63 @@ public class ActivityTargetNumber extends CcBaseActivity {
                         if ( BluetoothMsg.lastblueToothAddress != BluetoothMsg.BlueToothAddress ) {
                             BluetoothMsg.lastblueToothAddress = BluetoothMsg.BlueToothAddress;
                         }
+                        try {
+                            JSONObject connected = new JSONObject();
+                            connected.put( "address", msg );
+                            saveConnected.put( connected );
+                            editor.putString( "saveConnect", saveConnected.toString() );
+                            editor.apply();
+                        } catch ( JSONException e ) {
+                            e.printStackTrace();
+                        }
+                        ActivityClient_.intent( ActivitySearchServer.this ).start();
+                    }
+                } );
+                dialog.setNegativeButton( "cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick( DialogInterface dialog, int which ) {
+                        BluetoothMsg.BlueToothAddress = null;
+                    }
+                } );
+                dialog.show();
+            }
+        } );
 
-                        ActivityClient_.intent( ActivityTargetNumber.this ).start();
+        layoutManagerBluetoothConnected = new LinearLayoutManager( this );
+        layoutManagerBluetoothConnected.setOrientation( LinearLayoutManager.HORIZONTAL );
+        rvSearchServerBluetoothListConnected.setLayoutManager( layoutManagerBluetoothConnected );
+        rvSearchServerBluetoothListConnected.setHasFixedSize( true );
+        listBluetoothConnected = new ArrayList<>();
+        for ( int i = 0; i < saveConnected.length(); i++ ) {
+            try {
+                listBluetoothConnected.add( ((JSONObject) saveConnected.opt( i )).getString( "address" ) );
+            } catch ( JSONException e ) {
+                e.printStackTrace();
+            }
+        }
+        if ( listBluetoothConnected.size() > 0 ) {
+            if ( rvSearchServerBluetoothListConnected.getVisibility() == View.GONE ) {
+                rvSearchServerBluetoothListConnected.setVisibility( View.VISIBLE );
+            }
+        }
+        adapterBluetoothConnected = new AdapterTargetNumberBluetooth( rvSearchServerBluetoothListConnected, listBluetoothConnected, R.layout.list_target_number_bluetooth );
+        rvSearchServerBluetoothListConnected.setItemAnimator( new DefaultItemAnimator() );
+        rvSearchServerBluetoothListConnected.setAdapter( adapterBluetoothConnected );
+        adapterBluetoothConnected.setOnItemClickListener( new OnItemClickListener() {
+            @Override
+            public void onItemClick( View view, Object data, int position ) {
+                final String msg = listBluetoothConnected.get( position );
+                AlertDialog.Builder dialog = new AlertDialog.Builder( ActivitySearchServer.this );// 定义一个弹出框对象
+                dialog.setTitle( "Confirmed connecting device" );
+                dialog.setMessage( msg );
+                dialog.setPositiveButton( "connect", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick( DialogInterface dialog, int which ) {
+                        BluetoothMsg.BlueToothAddress = msg.substring( msg.length() - 17 );
+                        if ( BluetoothMsg.lastblueToothAddress != BluetoothMsg.BlueToothAddress ) {
+                            BluetoothMsg.lastblueToothAddress = BluetoothMsg.BlueToothAddress;
+                        }
+                        ActivityClient_.intent( ActivitySearchServer.this ).start();
                     }
                 } );
                 dialog.setNegativeButton( "cancel", new DialogInterface.OnClickListener() {
@@ -195,7 +263,7 @@ public class ActivityTargetNumber extends CcBaseActivity {
     private void bluetoothStateChanged() {
         if ( bluetoothAdapter.isEnabled() ) {
             tvTargetNumberState.setText( "蓝牙状态{打开}{搜索中...}" );
-            tvTargetNumberState.setText( String.format( getString( R.string.target_number_bluetooth_state ), String.format( getString( R.string.target_number_bluetooth_state_on ), "打开", "搜索中...", 0 ) ) );
+            tvTargetNumberState.setText( String.format( getString( R.string.target_number_bluetooth_state ), String.format( getString( R.string.target_number_bluetooth_state_on ), "打开", "搜索中...", searchCount ) ) );
             tbTargetNumberBluetoothState.setToggleOn();
             showSearchWords();
         } else {
@@ -258,6 +326,8 @@ public class ActivityTargetNumber extends CcBaseActivity {
                 BluetoothDevice device = intent.getParcelableExtra( BluetoothDevice.EXTRA_DEVICE );
                 // 将设备名称和地址放入array adapter，以便在ListView中显示
                 listBluetooth.add( device.getName() + "\n" + device.getAddress() );
+                searchCount++;
+                tvTargetNumberState.setText( String.format( getString( R.string.target_number_bluetooth_state ), String.format( getString( R.string.target_number_bluetooth_state_on ), "打开", "搜索中...", searchCount ) ) );
 
                 if ( rvTargetNumberBluetoothList.getVisibility() == View.GONE ) {
                     rvTargetNumberBluetoothList.setVisibility( View.VISIBLE );

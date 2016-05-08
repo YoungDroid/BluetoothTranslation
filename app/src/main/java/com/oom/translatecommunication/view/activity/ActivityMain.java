@@ -40,16 +40,19 @@ public class ActivityMain extends CcBaseActivity {
     @Override
     public void initOtherThing() {
 
-        byte[] b1 = new byte[2];
-        short s1 = ( short ) new Random().nextInt( 128 );
-        b1[0] = ( byte ) new Random().nextInt( 128 );
-        b1[1] = ( byte ) new Random().nextInt( 128 );
+        short[] ss1 = new short[ 2 ];
+        ss1[ 0 ] = ( byte ) new Random().nextInt( 128 );
+        ss1[ 1 ] = ( byte ) new Random().nextInt( 128 );
+        Log.e( "CcYang init", ss1[ 0 ] + "\t" + ss1[ 1 ] );
+        byte[] b2 = StringUtils.shortsToBytes( ss1 );
+        short[] ss2 = StringUtils.bytesToShorts( b2 );
 
-        byte[] b2 = StringUtils.shortsToBtyes( StringUtils.bytesToShorts( b1 ) );
-        short s2 = StringUtils.byteToShort( StringUtils.shortToByte( s1 ) );
-
-        Log.e( "CcYang", s1 + "\t" + b1[0] + "\t" + b1[1]);
-        Log.e( "CcYang", s2 + "\t" + b2[0] + "\t" + b2[1]);
+//        for ( int i = 0; i < 4; i++ ) {
+//            Log.e( "CcYang", "\t" + b2[ i ] );
+//        }
+        for ( int i = 0; i < 2; i++ ) {
+            Log.e( "CcYang exchange", ss1[ i ] + "\t" + i + "\t" + ss2[ i ] );
+        }
     }
 
     @Override
@@ -62,7 +65,7 @@ public class ActivityMain extends CcBaseActivity {
     }
 
     public void client( View view ) {
-        ActivityTargetNumber_.intent( this ).start();
+        ActivitySearchServer_.intent( this ).start();
     }
 
     public void service( View view ) {
