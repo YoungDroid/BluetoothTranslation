@@ -7,30 +7,9 @@
     android:fitsSystemWindows="true"
     tools:context=".view.activity.ActivityClient">
 
-    <ListView
-        android:id="@+id/lv_activity_client_content"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_activity_client_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/md_cyan_600"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@color/md_amber_700"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/et_client_send"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.7"/>
-
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:onClick="sendMessage"
-            android:text="@string/activity_client_send"
-            android:layout_weight="0.3"/>
-    </LinearLayout>
 </RelativeLayout>

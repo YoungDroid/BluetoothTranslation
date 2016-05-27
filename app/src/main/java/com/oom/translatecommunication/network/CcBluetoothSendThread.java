@@ -6,6 +6,8 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
+import com.oom.translatecommunication.model.TranslationMessage;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -26,8 +28,7 @@ public class CcBluetoothSendThread {
         } catch ( IOException e ) {
             e.printStackTrace();
             Message msg = linkDetectedHandler.obtainMessage();
-            msg.obj = "初始化发送失败.";
-            msg.what = 0;
+            msg.obj = new TranslationMessage( "初始化发送失败." );
             linkDetectedHandler.sendMessage( msg );
         }
     }
@@ -36,14 +37,12 @@ public class CcBluetoothSendThread {
         try {
             outputStream.write( message.getBytes() );
             Message msg = linkDetectedHandler.obtainMessage();
-            msg.obj = "发送成功：" + message;
-            msg.what = 0;
+            msg.obj = new TranslationMessage( "发送成功：" + message );
             linkDetectedHandler.sendMessage( msg );
         } catch ( IOException e ) {
             e.printStackTrace();
             Message msg = linkDetectedHandler.obtainMessage();
-            msg.obj = "发送失败.";
-            msg.what = 0;
+            msg.obj = new TranslationMessage( "发送失败." );
             linkDetectedHandler.sendMessage( msg );
         }
     }

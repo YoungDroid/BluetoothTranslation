@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.oom.translatecommunication.core.CcAudioClient;
 import com.oom.translatecommunication.core.CcAudioServer;
+import com.oom.translatecommunication.model.TranslationMessage;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -42,21 +43,20 @@ public class CcBluetoothServerThread extends Thread {
              * 参数分别：服务器名称、UUID   */
             mServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord( PROTOCOL_SCHEME_RFCOMM, UUID.fromString( "00001101-0000-1000-8000-00805F9B34FB" ) );
 
-            Message msgLinking = new Message();
-            msgLinking.obj = "请稍候，正在等待客户端的连接...";
-            msgLinking.what = 0;
+            Message msgLinking = linkDetectedHandler.obtainMessage();
+            msgLinking.obj = new TranslationMessage( "请稍候，正在等待客户端的连接..." );
             linkDetectedHandler.sendMessage( msgLinking );
             /* 接受客户端的连接请求 */
             socket = mServerSocket.accept();
 
-            Message msgLinked = new Message();
-            msgLinked.obj = "客户端已经连接上！可以发送信息。";
-            msgLinked.what = 0;
+            Message msgLinked = linkDetectedHandler.obtainMessage();
+            msgLinked.obj = new TranslationMessage( "客户端已经连接上！可以发送信息。" );
             linkDetectedHandler.sendMessage( msgLinked );
             //启动接受短信数据
-//            readThread = new CcBluetoothReadThread( socket, linkDetectedHandler );
-//            readThread.start();
-//            controller = new CcBluetoothController( mServerSocket, readThread, this );
+            readThread = new CcBluetoothReadThread( socket, linkDetectedHandler );
+            readThread.start();
+            controller = new CcBluetoothController( mServerSocket, readThread, this );
+
             //启动接受语音数据
             audioClient = new CcAudioClient( socket, linkDetectedHandler );
             audioClient.init();

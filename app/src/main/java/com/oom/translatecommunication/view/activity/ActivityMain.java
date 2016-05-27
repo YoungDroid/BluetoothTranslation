@@ -40,19 +40,6 @@ public class ActivityMain extends CcBaseActivity {
     @Override
     public void initOtherThing() {
 
-        short[] ss1 = new short[ 2 ];
-        ss1[ 0 ] = ( byte ) new Random().nextInt( 128 );
-        ss1[ 1 ] = ( byte ) new Random().nextInt( 128 );
-        Log.e( "CcYang init", ss1[ 0 ] + "\t" + ss1[ 1 ] );
-        byte[] b2 = StringUtils.shortsToBytes( ss1 );
-        short[] ss2 = StringUtils.bytesToShorts( b2 );
-
-//        for ( int i = 0; i < 4; i++ ) {
-//            Log.e( "CcYang", "\t" + b2[ i ] );
-//        }
-        for ( int i = 0; i < 2; i++ ) {
-            Log.e( "CcYang exchange", ss1[ i ] + "\t" + i + "\t" + ss2[ i ] );
-        }
     }
 
     @Override

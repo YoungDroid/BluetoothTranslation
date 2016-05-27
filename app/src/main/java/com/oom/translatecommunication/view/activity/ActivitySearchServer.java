@@ -24,8 +24,6 @@ import com.oom.translatecommunication.model.BluetoothMsg;
 import com.oom.translatecommunication.view.adapter.AdapterTargetNumberBluetooth;
 import com.oom.translatecommunication.widget.textview.CcMagicTextView;
 import com.oom.translatecommunication.widget.togglebutton.ToggleButton;
-import com.orhanobut.logger.LogLevel;
-import com.orhanobut.logger.Logger;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
@@ -70,6 +68,7 @@ public class ActivitySearchServer extends CcBaseActivity {
     private int searchCount = 0;
 
     private JSONArray saveConnected;
+    private boolean canAdd = true;
 
     @Override
     public String tag() {
@@ -124,9 +123,18 @@ public class ActivitySearchServer extends CcBaseActivity {
                         try {
                             JSONObject connected = new JSONObject();
                             connected.put( "address", msg );
-                            saveConnected.put( connected );
-                            editor.putString( "saveConnect", saveConnected.toString() );
-                            editor.apply();
+                            for ( int i = 0; i < saveConnected.length(); i++ ) {
+                                if ( saveConnected.optJSONObject( i ) == connected ) {
+                                    canAdd = false;
+                                    break;
+                                }
+                            }
+
+                            if ( canAdd ) {
+                                saveConnected.put( connected );
+                                editor.putString( "saveConnect", saveConnected.toString() );
+                                editor.apply();
+                            }
                         } catch ( JSONException e ) {
                             e.printStackTrace();
                         }
@@ -150,7 +158,7 @@ public class ActivitySearchServer extends CcBaseActivity {
         listBluetoothConnected = new ArrayList<>();
         for ( int i = 0; i < saveConnected.length(); i++ ) {
             try {
-                listBluetoothConnected.add( ((JSONObject) saveConnected.opt( i )).getString( "address" ) );
+                listBluetoothConnected.add( ( ( JSONObject ) saveConnected.opt( i ) ).getString( "address" ) );
             } catch ( JSONException e ) {
                 e.printStackTrace();
             }
@@ -316,9 +324,6 @@ public class ActivitySearchServer extends CcBaseActivity {
     // 创建一个接收ACTION_FOUND广播的BroadcastReceiver
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         public void onReceive( Context context, Intent intent ) {
-            Logger.init().setLogLevel( LogLevel.FULL );
-            Logger.t( "Receiver" ).d( "Action " + intent.getAction() );
-
             String action = intent.getAction();
             // 发现设备
             if ( BluetoothDevice.ACTION_FOUND.equals( action ) ) {

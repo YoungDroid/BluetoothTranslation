@@ -1,24 +1,23 @@
 package com.oom.translatecommunication.view.activity;
 
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import com.jude.utils.JUtils;
 import com.oom.translatecommunication.R;
 import com.oom.translatecommunication.app.CcBaseActivity;
 import com.oom.translatecommunication.model.BluetoothMsg;
 import com.oom.translatecommunication.model.BluetoothMsg.ServerOrClient;
+import com.oom.translatecommunication.model.TranslationMessage;
 import com.oom.translatecommunication.network.CcBluetoothServerThread;
+import com.oom.translatecommunication.view.adapter.AdapterTranslation;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
@@ -36,11 +35,12 @@ public class ActivityService extends CcBaseActivity {
     public static final int BLUETOOTH_DISCOVERABLE = 102;
     public static final int BLUETOOTH_DISCOVERABLE_TIME = 300;
 
-    @ViewById(R.id.lv_activity_service_content)
-    ListView lvContent;
+    @ViewById(R.id.rv_activity_service_content)
+    RecyclerView rvContent;
 
-    private ArrayAdapter< String > mAdapter;
-    private List< String > msgList = new ArrayList< String >();
+    private List< TranslationMessage > msgList;
+    private AdapterTranslation adapterTranslation;
+    private LinearLayoutManager layoutManager;
 
     private CcBluetoothServerThread startServerThread = null;
     private BluetoothAdapter mBluetoothAdapter = null;
@@ -54,10 +54,6 @@ public class ActivityService extends CcBaseActivity {
     public void initView() {
         mToolbar.setTitle( "主动端" );
         mToolbar.setBackgroundColor( Color.RED );
-
-        mAdapter = new ArrayAdapter< String >( this, android.R.layout.simple_list_item_1, msgList );
-        lvContent.setAdapter( mAdapter );
-        lvContent.setFastScrollEnabled( true );
     }
 
     @Override
@@ -67,7 +63,13 @@ public class ActivityService extends CcBaseActivity {
 
     @Override
     public void initOtherThing() {
-
+        msgList = new ArrayList<>();
+        layoutManager = new LinearLayoutManager( this );
+        layoutManager.setOrientation( LinearLayoutManager.VERTICAL );
+        rvContent.setHasFixedSize( true );
+        rvContent.setLayoutManager( layoutManager );
+        adapterTranslation = new AdapterTranslation( rvContent, msgList, R.layout.list_tranlsation );
+        rvContent.setAdapter( adapterTranslation );
     }
 
     @Override
@@ -86,11 +88,9 @@ public class ActivityService extends CcBaseActivity {
     private void startServer() {
         BluetoothMsg.serviceOrClient = ServerOrClient.SERVICE;
         if ( BluetoothMsg.isOpen ) {
-            String msgString = "连接已经打开,可以通信.如果要再建立连接,请先断开!";
             Message msg = LinkDetectedHandler.obtainMessage();
-            msg.obj = msgString;
+            msg.obj = new TranslationMessage( "连接已经打开,可以通信.如果要再建立连接,请先断开!" );
             LinkDetectedHandler.sendMessage( msg );
-            Toast.makeText( this, msgString, Toast.LENGTH_SHORT ).show();
             return;
         }
         if ( BluetoothMsg.serviceOrClient == ServerOrClient.SERVICE ) {
@@ -159,11 +159,9 @@ public class ActivityService extends CcBaseActivity {
     private Handler LinkDetectedHandler = new Handler() {
         @Override
         public void handleMessage( Message msg ) {
-            //Toast.makeText(mContext, (String)msg.obj, Toast.LENGTH_SHORT).show();
-            Log.e( getClass().getSimpleName(), "result: " + msg.obj );
-            msgList.add( ( String ) msg.obj );
-            mAdapter.notifyDataSetChanged();
-            lvContent.setSelection( msgList.size() - 1 );
+            Log.e( getClass().getSimpleName(), "result: " + msg.obj.toString() );
+            msgList.add( ( TranslationMessage ) msg.obj );
+            adapterTranslation.notifyDataSetChanged();
         }
     };
 
