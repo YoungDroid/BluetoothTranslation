@@ -1,18 +1,25 @@
 package com.oom.translatecommunication.view.activity;
 
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.jude.utils.JUtils;
 import com.oom.translatecommunication.R;
 import com.oom.translatecommunication.app.CcBaseActivity;
+import com.oom.translatecommunication.app.CcBaseRecyclerAdapter.OnItemClickListener;
 import com.oom.translatecommunication.model.BluetoothMsg;
 import com.oom.translatecommunication.model.BluetoothMsg.ServerOrClient;
 import com.oom.translatecommunication.model.TranslationMessage;
@@ -44,6 +51,7 @@ public class ActivityService extends CcBaseActivity {
 
     private CcBluetoothServerThread startServerThread = null;
     private BluetoothAdapter mBluetoothAdapter = null;
+    private String phoneNumber = null;
 
     @Override
     public String tag() {
@@ -70,6 +78,16 @@ public class ActivityService extends CcBaseActivity {
         rvContent.setLayoutManager( layoutManager );
         adapterTranslation = new AdapterTranslation( rvContent, msgList, R.layout.list_tranlsation );
         rvContent.setAdapter( adapterTranslation );
+        adapterTranslation.setOnItemClickListener( new OnItemClickListener() {
+            @Override
+            public void onItemClick( View view, Object data, int position ) {
+                if ( ((TranslationMessage) data).getType() != TranslationMessage.SystemInfo ) {
+                    dialogAction.show();
+                }
+            }
+        } );
+
+        initActionDialog();
     }
 
     @Override
@@ -159,8 +177,10 @@ public class ActivityService extends CcBaseActivity {
     private Handler LinkDetectedHandler = new Handler() {
         @Override
         public void handleMessage( Message msg ) {
-            Log.e( getClass().getSimpleName(), "result: " + msg.obj.toString() );
-            msgList.add( ( TranslationMessage ) msg.obj );
+            TranslationMessage translationMessage = ( TranslationMessage ) msg.obj;
+            phoneNumber = translationMessage.getNumber();
+            Log.e( getClass().getSimpleName(), "result: " + translationMessage.toString() );
+            msgList.add( translationMessage );
             adapterTranslation.notifyDataSetChanged();
         }
     };
@@ -174,5 +194,34 @@ public class ActivityService extends CcBaseActivity {
         }
         BluetoothMsg.isOpen = false;
         BluetoothMsg.serviceOrClient = ServerOrClient.NONE;
+    }
+
+
+    private Dialog dialogAction;
+
+    private void initActionDialog() {
+        dialogAction = new Dialog( this, R.style.Dialog );
+        dialogAction.setContentView( R.layout.dialog_simple_dialog );
+        //dialogShare.show();
+        TextView textViewContent = ( TextView ) dialogAction.findViewById( R.id.tv_simple_dialog_content );
+        textViewContent.setText( "选择操作" );
+        Button btConfirm = ( Button ) dialogAction.findViewById( R.id.b_simple_dialog_confirm );
+        btConfirm.setText( "直接回复" );
+        btConfirm.setOnClickListener( new OnClickListener() {
+            @Override
+            public void onClick( View v ) {
+                Intent intent = new Intent( Intent.ACTION_SENDTO, Uri.parse( "smsto:" + phoneNumber ) );
+                intent.putExtra( "sms_body", "" );
+                startActivity( intent );
+            }
+        } );
+        Button btCancel = ( Button ) dialogAction.findViewById( R.id.b_simple_dialog_cancel );
+        btCancel.setText( "转移回复" );
+        btCancel.setOnClickListener( new OnClickListener() {
+            @Override
+            public void onClick( View v ) {
+
+            }
+        } );
     }
 }

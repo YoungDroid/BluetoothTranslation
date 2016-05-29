@@ -53,13 +53,13 @@ public class CcBluetoothClientThread extends Thread {
             sendThread = new CcBluetoothSendThread( socket, linkDetectedHandler );
             controller = new CcBluetoothController( this, readThread, socket );
 
-            //启动语音获取
-            audioClient = new CcAudioClient( socket, linkDetectedHandler );
-            audioClient.init();
-            audioClient.start();
-            audioServer = new CcAudioServer( socket, linkDetectedHandler );
-            audioServer.init();
-            audioServer.start();
+//            //启动语音获取
+//            audioClient = new CcAudioClient( socket, linkDetectedHandler );
+//            audioClient.init();
+//            audioClient.start();
+//            audioServer = new CcAudioServer( socket, linkDetectedHandler );
+//            audioServer.init();
+//            audioServer.start();
         } catch ( IOException e ) {
             Message msg = linkDetectedHandler.obtainMessage();
             msg.obj = new TranslationMessage( "连接服务端异常！断开连接重新试一试。" );

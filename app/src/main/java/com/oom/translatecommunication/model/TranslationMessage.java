@@ -47,6 +47,19 @@ public class TranslationMessage implements Serializable {
         }
     }
 
+    public TranslationMessage(String string, int someThing) {
+        initMessage();
+        try {
+            JSONObject jsonParams = new JSONObject( string );
+            title = jsonParams.getString( "title" );
+            content = jsonParams.getString( "content" );
+            number = jsonParams.getString( "number" );
+            type = jsonParams.getInt( "type" );
+        } catch ( JSONException e ) {
+            e.printStackTrace();
+        }
+    }
+
     private void initMessage() {
         title = "";
         content = "";

@@ -4,6 +4,10 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.os.Message;
 
+import com.oom.translatecommunication.model.TranslationMessage;
+
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -39,11 +43,11 @@ public class CcBluetoothReadThread extends Thread {
                     for ( int i = 0; i < bytes; i++ ) {
                         buf_data[ i ] = buffer[ i ];
                     }
-                    String s = new String( buf_data );
-                    Message msg = new Message();
-                    msg.obj = s;
-                    msg.what = 1;
-                    linkDetectedHandler.sendMessage( msg );
+                    String stringRead = new String( buf_data );
+                    Message message = linkDetectedHandler.obtainMessage();
+                    TranslationMessage translationMessage = new TranslationMessage( stringRead, 0 );
+                    message.obj = translationMessage;
+                    linkDetectedHandler.sendMessage( message );
                 }
             } catch ( IOException e ) {
                 try {

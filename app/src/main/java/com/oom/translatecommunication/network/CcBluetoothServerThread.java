@@ -57,13 +57,13 @@ public class CcBluetoothServerThread extends Thread {
             readThread.start();
             controller = new CcBluetoothController( mServerSocket, readThread, this );
 
-            //启动接受语音数据
-            audioClient = new CcAudioClient( socket, linkDetectedHandler );
-            audioClient.init();
-            audioClient.start();
-            audioServer = new CcAudioServer( socket, linkDetectedHandler );
-            audioServer.init();
-            audioServer.start();
+//            //启动接受语音数据
+//            audioClient = new CcAudioClient( socket, linkDetectedHandler );
+//            audioClient.init();
+//            audioClient.start();
+//            audioServer = new CcAudioServer( socket, linkDetectedHandler );
+//            audioServer.init();
+//            audioServer.start();
         } catch ( IOException e ) {
             e.printStackTrace();
         }

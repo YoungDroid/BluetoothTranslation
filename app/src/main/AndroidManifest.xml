@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.SEND_SMS"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
     <application
         android:name=".app.ApplicationTranslateCommunication"
@@ -35,19 +35,5 @@
         <activity
             android:name=".view.activity.ActivitySearchServer_">
         </activity>
-
-        <receiver android:name=".app.receiver.CcSmsReceiver">
-            <intent-filter android:priority="999">
-                <action android:name="candroid.intent.action.BOOT_COMPLETEN"/>
-                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
-            </intent-filter>
-        </receiver>
-        <receiver android:name=".app.receiver.CcPhoneReceiver">
-            <intent-filter android:priority="1000">
-                <action android:name="candroid.intent.action.BOOT_COMPLETEN"/>
-                <action android:name="android.intent.action.NEW_OUTGOING_CALL"/>
-                <action android:name="android.intent.action.PHONE_STATE"/>
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>
