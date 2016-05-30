@@ -3,6 +3,8 @@ package com.oom.translatecommunication.network;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.oom.translatecommunication.model.TranslationMessage;
 
@@ -46,6 +48,7 @@ public class CcBluetoothReadThread extends Thread {
                     String stringRead = new String( buf_data );
                     Message message = linkDetectedHandler.obtainMessage();
                     TranslationMessage translationMessage = new TranslationMessage( stringRead, 0 );
+                    Log.e( "CcYang", translationMessage.toString() );
                     message.obj = translationMessage;
                     linkDetectedHandler.sendMessage( message );
                 }

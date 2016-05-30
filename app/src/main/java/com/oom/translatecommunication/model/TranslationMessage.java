@@ -17,6 +17,7 @@ public class TranslationMessage implements Serializable {
     public static final int MessageIn = 1002;
     public static final int MessageOut = 1003;
     public static final int SystemInfo = 1004;
+    public static final int ToastInfo = 1005;
 
     private String title;
     private String content;

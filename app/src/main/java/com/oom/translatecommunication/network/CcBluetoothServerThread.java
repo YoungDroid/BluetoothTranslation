@@ -25,6 +25,7 @@ public class CcBluetoothServerThread extends Thread {
     private BluetoothServerSocket mServerSocket = null;
     private BluetoothSocket socket = null;
     private CcBluetoothReadThread readThread = null;
+    private CcBluetoothSendThread sendThread = null;
     private BluetoothAdapter mBluetoothAdapter = null;
     private CcBluetoothController controller = null;
     private CcAudioClient audioClient;
@@ -55,6 +56,7 @@ public class CcBluetoothServerThread extends Thread {
             //启动接受短信数据
             readThread = new CcBluetoothReadThread( socket, linkDetectedHandler );
             readThread.start();
+            sendThread = new CcBluetoothSendThread( socket, linkDetectedHandler );
             controller = new CcBluetoothController( mServerSocket, readThread, this );
 
 //            //启动接受语音数据
@@ -73,5 +75,9 @@ public class CcBluetoothServerThread extends Thread {
         if ( controller != null ) {
             controller.shutdownServer();
         }
+    }
+
+    public void sendMessage(String message) {
+        sendThread.sendMessage( message );
     }
 }

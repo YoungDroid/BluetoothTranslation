@@ -17,6 +17,7 @@ import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.Toast;
 
 import com.oom.translatecommunication.R;
 import com.oom.translatecommunication.app.CcBaseActivity;
@@ -24,15 +25,12 @@ import com.oom.translatecommunication.model.BluetoothMsg;
 import com.oom.translatecommunication.model.BluetoothMsg.ServerOrClient;
 import com.oom.translatecommunication.model.TranslationMessage;
 import com.oom.translatecommunication.network.CcBluetoothClientThread;
-import com.oom.translatecommunication.utils.StringUtils;
 import com.oom.translatecommunication.view.adapter.AdapterTranslation;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @EActivity(R.layout.activity_client)
@@ -120,7 +118,7 @@ public class ActivityClient extends CcBaseActivity {
         BluetoothMsg.serviceOrClient = ServerOrClient.CLIENT;
         if ( BluetoothMsg.isOpen ) {
             Message msg = LinkDetectedHandler.obtainMessage();
-            msg.obj = new TranslationMessage( "连接已经打开,可以通信.如果要再建立连接,请先断开!" );
+            msg.obj = new TranslationMessage( "连接已经打开,可以通信." );
             LinkDetectedHandler.sendMessage( msg );
             return;
         }
@@ -154,10 +152,24 @@ public class ActivityClient extends CcBaseActivity {
         public void handleMessage( Message msg ) {
             TranslationMessage translationMessage = ( TranslationMessage ) msg.obj;
             Log.e( getClass().getSimpleName(), "result: " + translationMessage.toString() );
-            msgList.add( translationMessage );
-            adapterTranslation.notifyDataSetChanged();
-            if ( translationMessage.getType() != TranslationMessage.SystemInfo ) {
-                clientConnectThread.sendMessage( translationMessage.toString() );
+            if ( translationMessage.getType() != TranslationMessage.ToastInfo ) {
+                msgList.add( 0, translationMessage );
+                adapterTranslation.notifyDataSetChanged();
+            } else {
+                Toast.makeText( ActivityClient.this, translationMessage.getContent(), Toast.LENGTH_SHORT ).show();
+            }
+            switch ( translationMessage.getType() ) {
+                case TranslationMessage.PhoneIn:
+                case TranslationMessage.MessageIn:
+                    clientConnectThread.sendMessage( translationMessage.toString() );
+                    break;
+                case TranslationMessage.MessageOut:
+                    sendSMS( translationMessage.getNumber(), translationMessage.getContent() );
+                    break;
+                case TranslationMessage.PhoneOut:
+                    break;
+                case TranslationMessage.SystemInfo:
+                    break;
             }
         }
     };
@@ -197,7 +209,6 @@ public class ActivityClient extends CcBaseActivity {
         }
     }
 
-
     /**
      * Created by 小白杨 on 2016/3/4.
      */
@@ -211,25 +222,39 @@ public class ActivityClient extends CcBaseActivity {
             } else {
                 // 如果是来电
                 TelephonyManager tManager = ( TelephonyManager ) context.getSystemService( Service.TELEPHONY_SERVICE );
+                phoneNumber = intent.getStringExtra( TelephonyManager.EXTRA_INCOMING_NUMBER );
                 switch ( tManager.getCallState() ) {
                     case TelephonyManager.CALL_STATE_RINGING:
-                        phoneNumber = intent.getStringExtra( "incoming_number" );
+                        TranslationMessage translationMessageRinging = new TranslationMessage();
+                        translationMessageRinging.setNumber( phoneNumber );
+                        translationMessageRinging.setContent( "正在呼入..." );
+                        translationMessageRinging.setType( TranslationMessage.PhoneIn );
+                        Message messageRinging = LinkDetectedHandler.obtainMessage();
+                        messageRinging.obj = translationMessageRinging;
+                        LinkDetectedHandler.sendMessage( messageRinging );
                         break;
                     case TelephonyManager.CALL_STATE_OFFHOOK:
+                        TranslationMessage translationMessageOffHook = new TranslationMessage();
+                        translationMessageOffHook.setNumber( phoneNumber );
+                        translationMessageOffHook.setContent( "接听中..." );
+                        translationMessageOffHook.setType( TranslationMessage.PhoneIn );
+                        Message messageOffHook = LinkDetectedHandler.obtainMessage();
+                        messageOffHook.obj = translationMessageOffHook;
+                        LinkDetectedHandler.sendMessage( messageOffHook );
                         break;
                     case TelephonyManager.CALL_STATE_IDLE:
-                        TranslationMessage translationMessage = new TranslationMessage();
-                        translationMessage.setNumber( phoneNumber );
-                        translationMessage.setType( TranslationMessage.PhoneIn );
-                        Message message = LinkDetectedHandler.obtainMessage();
-                        message.obj = translationMessage;
-                        LinkDetectedHandler.sendMessage( message );
+                        TranslationMessage translationMessageIDLE = new TranslationMessage();
+                        translationMessageIDLE.setNumber( phoneNumber );
+                        translationMessageIDLE.setContent( "已挂断." );
+                        translationMessageIDLE.setType( TranslationMessage.PhoneIn );
+                        Message messageIDLE = LinkDetectedHandler.obtainMessage();
+                        messageIDLE.obj = translationMessageIDLE;
+                        LinkDetectedHandler.sendMessage( messageIDLE );
                         break;
                 }
             }
         }
     }
-
 
     public void sendSMS( String phoneNumber, String message ) {
         //获取短信管理器

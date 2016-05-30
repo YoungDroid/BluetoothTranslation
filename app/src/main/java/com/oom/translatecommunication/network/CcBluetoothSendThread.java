@@ -28,7 +28,9 @@ public class CcBluetoothSendThread {
         } catch ( IOException e ) {
             e.printStackTrace();
             Message msg = linkDetectedHandler.obtainMessage();
-            msg.obj = new TranslationMessage( "初始化发送失败." );
+            TranslationMessage translationMessage = new TranslationMessage( "初始化发送失败.");
+            translationMessage.setType( TranslationMessage.ToastInfo );
+            msg.obj = translationMessage;
             linkDetectedHandler.sendMessage( msg );
         }
     }
@@ -37,12 +39,17 @@ public class CcBluetoothSendThread {
         try {
             outputStream.write( message.getBytes() );
             Message msg = linkDetectedHandler.obtainMessage();
-            msg.obj = new TranslationMessage( "发送成功：" + message );
+            TranslationMessage translationMessage = new TranslationMessage( "发送成功.");
+            translationMessage.setType( TranslationMessage.ToastInfo );
+            msg.obj = translationMessage;
             linkDetectedHandler.sendMessage( msg );
+
         } catch ( IOException e ) {
             e.printStackTrace();
             Message msg = linkDetectedHandler.obtainMessage();
-            msg.obj = new TranslationMessage( "发送失败." );
+            TranslationMessage translationMessage = new TranslationMessage( "发送失败.");
+            translationMessage.setType( TranslationMessage.ToastInfo );
+            msg.obj = translationMessage;
             linkDetectedHandler.sendMessage( msg );
         }
     }

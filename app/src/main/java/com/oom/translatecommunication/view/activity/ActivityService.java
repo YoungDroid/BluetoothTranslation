@@ -3,6 +3,7 @@ package com.oom.translatecommunication.view.activity;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Handler;
@@ -14,7 +15,9 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jude.utils.JUtils;
 import com.oom.translatecommunication.R;
@@ -81,13 +84,22 @@ public class ActivityService extends CcBaseActivity {
         adapterTranslation.setOnItemClickListener( new OnItemClickListener() {
             @Override
             public void onItemClick( View view, Object data, int position ) {
-                if ( ((TranslationMessage) data).getType() != TranslationMessage.SystemInfo ) {
-                    dialogAction.show();
+                TranslationMessage translationMessage = ((TranslationMessage) data);
+                phoneNumber = translationMessage.getNumber();
+                switch ( translationMessage.getType() ) {
+                    case TranslationMessage.PhoneIn:
+                        dialogPhoneIn.show();
+                        break;
+                    case TranslationMessage.MessageIn:
+                        dialogMessageIn.show();
+                        break;
                 }
             }
         } );
 
-        initActionDialog();
+        initPhoneInDialog();
+        initMessageInDialog();
+        initMessageReplyDialog();
     }
 
     @Override
@@ -107,7 +119,7 @@ public class ActivityService extends CcBaseActivity {
         BluetoothMsg.serviceOrClient = ServerOrClient.SERVICE;
         if ( BluetoothMsg.isOpen ) {
             Message msg = LinkDetectedHandler.obtainMessage();
-            msg.obj = new TranslationMessage( "连接已经打开,可以通信.如果要再建立连接,请先断开!" );
+            msg.obj = new TranslationMessage( "连接已经打开,可以通信." );
             LinkDetectedHandler.sendMessage( msg );
             return;
         }
@@ -178,17 +190,19 @@ public class ActivityService extends CcBaseActivity {
         @Override
         public void handleMessage( Message msg ) {
             TranslationMessage translationMessage = ( TranslationMessage ) msg.obj;
-            phoneNumber = translationMessage.getNumber();
             Log.e( getClass().getSimpleName(), "result: " + translationMessage.toString() );
-            msgList.add( translationMessage );
-            adapterTranslation.notifyDataSetChanged();
+            if ( translationMessage.getType() != TranslationMessage.ToastInfo ) {
+                msgList.add( 0, translationMessage );
+                adapterTranslation.notifyDataSetChanged();
+            } else {
+                Toast.makeText( ActivityService.this, translationMessage.getContent(), Toast.LENGTH_SHORT ).show();
+            }
         }
     };
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         if ( BluetoothMsg.serviceOrClient == ServerOrClient.SERVICE ) {
             startServerThread.close();
         }
@@ -196,16 +210,14 @@ public class ActivityService extends CcBaseActivity {
         BluetoothMsg.serviceOrClient = ServerOrClient.NONE;
     }
 
-
-    private Dialog dialogAction;
-
-    private void initActionDialog() {
-        dialogAction = new Dialog( this, R.style.Dialog );
-        dialogAction.setContentView( R.layout.dialog_simple_dialog );
+    private Dialog dialogMessageIn;
+    private void initMessageInDialog() {
+        dialogMessageIn = new Dialog( this, R.style.Dialog );
+        dialogMessageIn.setContentView( R.layout.dialog_simple_dialog );
         //dialogShare.show();
-        TextView textViewContent = ( TextView ) dialogAction.findViewById( R.id.tv_simple_dialog_content );
+        TextView textViewContent = ( TextView ) dialogMessageIn.findViewById( R.id.tv_simple_dialog_content );
         textViewContent.setText( "选择操作" );
-        Button btConfirm = ( Button ) dialogAction.findViewById( R.id.b_simple_dialog_confirm );
+        Button btConfirm = ( Button ) dialogMessageIn.findViewById( R.id.b_simple_dialog_confirm );
         btConfirm.setText( "直接回复" );
         btConfirm.setOnClickListener( new OnClickListener() {
             @Override
@@ -215,12 +227,76 @@ public class ActivityService extends CcBaseActivity {
                 startActivity( intent );
             }
         } );
-        Button btCancel = ( Button ) dialogAction.findViewById( R.id.b_simple_dialog_cancel );
+        Button btCancel = ( Button ) dialogMessageIn.findViewById( R.id.b_simple_dialog_cancel );
         btCancel.setText( "转移回复" );
         btCancel.setOnClickListener( new OnClickListener() {
             @Override
             public void onClick( View v ) {
+                dialogMessageIn.dismiss();
+                dialogMessageReply.show();
+            }
+        } );
+    }
 
+    private Dialog dialogPhoneIn;
+    private void initPhoneInDialog() {
+        dialogPhoneIn = new Dialog( this, R.style.Dialog );
+        dialogPhoneIn.setContentView( R.layout.dialog_3_button_dialog );
+        //dialogShare.show();
+        TextView textViewContent = ( TextView ) dialogPhoneIn.findViewById( R.id.tv_3_button_dialog_content );
+        textViewContent.setText( "选择操作" );
+        Button btFirst = ( Button ) dialogPhoneIn.findViewById( R.id.b_3_button_dialog_first );
+        btFirst.setText( "电话回复" );
+        btFirst.setOnClickListener( new OnClickListener() {
+            @Override
+            public void onClick( View v ) {
+                Intent intent = new Intent( Intent.ACTION_CALL, Uri.parse( "tel:" + phoneNumber ) );
+                startActivity( intent );
+            }
+        } );
+        Button btSecond = ( Button ) dialogPhoneIn.findViewById( R.id.b_3_button_dialog_second );
+        btSecond.setText( "短信回复" );
+        btSecond.setOnClickListener( new OnClickListener() {
+            @Override
+            public void onClick( View v ) {
+                Intent intent = new Intent( Intent.ACTION_SENDTO, Uri.parse( "smsto:" + phoneNumber ) );
+                intent.putExtra( "sms_body", "" );
+                startActivity( intent );
+            }
+        } );
+        Button btThird = ( Button ) dialogPhoneIn.findViewById( R.id.b_3_button_dialog_third );
+        btThird.setText( "短信转移" );
+        btThird.setOnClickListener( new OnClickListener() {
+            @Override
+            public void onClick( View v ) {
+                dialogPhoneIn.dismiss();
+                dialogMessageReply.show();
+            }
+        } );
+    }
+
+    private Dialog dialogMessageReply;
+    private void initMessageReplyDialog() {
+        dialogMessageReply = new Dialog( this, R.style.Dialog );
+        dialogMessageReply.setContentView( R.layout.dialog_reply_sms );
+        final EditText etContent = ( EditText ) dialogMessageReply.findViewById( R.id.et_content );
+        Button btSend = ( Button ) dialogMessageReply.findViewById( R.id.b_send );
+        btSend.setOnClickListener( new OnClickListener() {
+            @Override
+            public void onClick( View v ) {
+                String words = etContent.getText().toString();
+                if ( words.equals( "" ) ) {
+                    Toast.makeText( ActivityService.this, "内容不能为空.", Toast.LENGTH_SHORT ).show();
+                } else {
+                    TranslationMessage translationMessage = new TranslationMessage();
+                    translationMessage.setNumber( phoneNumber );
+                    translationMessage.setContent( words );
+                    translationMessage.setType( TranslationMessage.MessageOut );
+                    startServerThread.sendMessage( translationMessage.toString() );
+
+                    etContent.setText( "" );
+                    dialogMessageReply.dismiss();
+                }
             }
         } );
     }
