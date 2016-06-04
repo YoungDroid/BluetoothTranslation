@@ -16,7 +16,7 @@ android {
     buildTypes {
         release {
             // 混淆
-            minifyEnabled true
+            minifyEnabled false
             // 优化
             zipAlignEnabled true
             // 移除无用的resource文件
